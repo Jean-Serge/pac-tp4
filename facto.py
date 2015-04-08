@@ -15,38 +15,45 @@ URL = 'http://pac.bouillaguet.info/TP4/factoring/'
 server = Server(URL)
 
 
+
 # ----------------------------------------------------------------------------
 # Récupération du challenge
 # -------------------------
-response = server.query('get/1/D')
+response = server.query('get/2/D')
 
 id = response['id']
 n = response['n']
 f = []
 
 n_donne = n
-print("n : " + str(n))
+print(type(n))
+
+def divide_by(n, p):
+    while n % p == 0 :
+        # print(str(n) + " divisé par " + str(p))
+        n = n // p
+        f.append(p)
+        print("Résultat : " + str(n))
+        
+    return n
 
 
 # ----------------------------------------------------------------------------
 # Calcul des facteurs
 # -------------------------
-p = 2
+
+n = divide_by(n, 2)
+p = 3
 
 while n != 1:
-    # Si n % p == 0 alors n est multiple de p
-    if n % p == 0:
-        f.append(p)
-        n = floor(n / p)
-        print("n : " + str(n))
+    if(p > floor(sqrt(n))) :
+        n = divide_by(n, n)
         continue
+    n = divide_by(n, p)
+    p += 2
     
-    # Incrémenter le nombre p 
-    if p == 2:
-        p = 3
-    else:
-        p += 2
 
+    
 print(f)
 trouve = 1
 for i in f:
