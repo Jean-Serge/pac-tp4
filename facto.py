@@ -67,7 +67,6 @@ def divide_by(n, p):
 
 n = divide_by(n, 2)
 p = 3
-cpt = 0
 
 while n != 1:
     
