@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 
 """
-TP2 PAC - mersenne-twister
+TP4 PAC - factoring
 """
 
 from client import *
@@ -18,7 +18,7 @@ server = Server(URL)
 # ----------------------------------------------------------------------------
 # Récupération du challenge
 # -------------------------
-response = server.query('get/2/C')
+response = server.query('get/3/C')
 
 id = response['id']
 n = response['n']
@@ -68,15 +68,18 @@ def pgcd(a, b):
 
 def pollardrho(n, x1=1, f=lambda x: x**2+1):
     x = x1
+    cpt = 0
     y = f(x) % n
     p = pgcd(y-x, n)
     while p == 1:
         x = f(x) % n
         y = f(f(y)) % n
         p = pgcd(y-x, n)
+
     if p == n:
         return None
     return p
+
 
 # ----------------------------------------------------------------------------
 # Calcul des facteurs
