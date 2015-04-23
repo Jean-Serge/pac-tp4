@@ -56,5 +56,7 @@ print(n_donne)
 print(trouve)
 
 dic = {'id':id, 'factors':f}
+
 response = server.query('submit/monbailly', dic)
 print(response)
+
