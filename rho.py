@@ -7,66 +7,95 @@ TP4 PAC - factoring
 from fractions import gcd
 from math import sqrt
 from math import floor
-from primalite import millerRabin
+from random import randint
 
-import random
+# =============================================================================
+petitspremiers = [2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,
+                      79,83,89,97,101,103,107,109,113,127,131,137,139,149,151,157,163,167,173,
+                      179,181,191,193,197,199,211,223,227,229,233,239,241,251,257,263,
+                      269,271,277,281,283,293,307,311,313,317,331,337,347,349,353,359,
+                      367,373,379,383,389,397,401,409,419,421,431,433,439,443,449,457,
+                      461,463,467,479,487,491,499,503,509,521,523,541,547,557,563,569,
+                      571,577,587,593,599,601,607,613,617,619,631,641,643,647,653,659,
+                      661,673,677,683,691,701,709,719,727,733,739,743,751,757,761,769,
+                      773,787,797,809,811,821,823,827,829,839,853,857,859,863,877,881,
+                      883,887,907,911,919,929,937,941,947,953,967,971,977,983,991,997,
+                      1009,1013,1019,1021]
 
-    
-def est_premier(p):
-    # if(p % 2 == 0):
-    #     return False
+# =============================================================================
+def lpowmod(a, b, n):
+    """exponentiation modulaire: calcule (a**b)%n"""
+    r = 1
+    while b>0:
+        if b&1==0:
+            b = b>>1
+        else:
+            r = (r*a)%n
+            b = (b-1)>>1
+        a = (a*a)%n
+    return r
 
-    # sqr = sqrt(p)
-    # cpt = 3
-    # while(cpt <= sqr):
-    #     if(p % cpt == 0):
-    #         return False
-    #     cpt += 2
-
-    # return True
-    return millerRabin(p)
-
-def premier_suivant(p):
-    while(True):
-        p += 2
-        if(est_premier(p)):
-               return p
-
-def divide_by(n, p):
-    """
-    Divise le nombre n par p autant que possible.
-    Retourne le dernier résultat de n / p
-    """
-    f = []
-    while n % p == 0 :
-        # print(str(n) + " divisé par " + str(p))
-        n = n // p
-        f.append(p)
-        # print("Résultat : " + str(n))
+# =============================================================================
+#  Test de primalité probabiliste de Miller-Rabin
+def _millerRabin(a, n):
+    """Ne pas appeler directement (fonction utilitaire). Appeler millerRabin(n, k=20)"""
+    # trouver s et d pour transformer n-1 en (2**s)*d
+    d = n - 1
+    s = 0
+    while d % 2 == 0:
+        d >>= 1
+        s += 1
         
-    return n, f
+    # calculer l'exponentiation modulaire (a**d)%n
+    apow = lpowmod(a,d,n) # =(a**d)%n
+    
+    # si (a**d) % n ==1 => n est probablement 1er
+    if apow == 1:
+        return True
+    
+    for r in range(0,s):
+        # si a**(d*(2**r)) % n == (n-1) => n est probablement 1er
+        if lpowmod(a,d,n) == n-1:
+            return True
+        d *= 2
+        
+    return False
+
+# ========================
+def millerRabin(n, k=20):
+    """Test de primalité probabiliste de Miller-Rabin"""
+    global petitspremiers
+
+    # éliminer le cas des petits nombres <=1024
+    if n<=1024:
+        if n in petitspremiers:
+            return True
+        else:
+            return False
+        
+    # éliminer le cas des nombres pairs qui ne peuvent pas être 1ers!
+    if n & 1 == 0:
+        return False
+    
+    # recommencer le test k fois: seul les nb ayant réussi k fois seront True
+    for repete in range(0, k):
+        # trouver un nombre au hasard entre 1 et n-1 (bornes inclues)
+        a = randint(1, n-1)
+        # si le test echoue une seule fois => n est composé
+        if not _millerRabin(a, n):
+            return False
+    
+        # n a réussi les k tests => il est probablement 1er
+    return True
 
 
-# def pollardrho(n, x1=1, f=lambda x: x**2+1):
-#     x = x1
-#     cpt = 0
-#     y = f(x) % n
-#     p = gcd(y-x, n)
-#     while p == 1:
-#         x = f(x) % n
-#         y = f(f(y)) % n
-#         p = gcd(y-x, n)
-
-#     if p == n:
-#         return None
-#     return p
 
 def pollardrho(N):
     if N%2==0:
         return 2
-    x = random.randint(1, N-1)
+    x = randint(1, N-1)
     y = x
-    c = random.randint(1, N-1)
+    c = randint(1, N-1)
     g = 1
     while g==1:
         x = ((x*x)%N+c)%N
@@ -76,60 +105,3 @@ def pollardrho(N):
 
     return g
 
-def brent(N):
-    if N%2==0:
-        return 2
-    y,c,m = random.randint(1, N-1),random.randint(1, N-1),random.randint(1, N-1)
-    g,r,q = 1,1,1
-    while g==1:
-        x = y
-        for i in range(r):
-            y = ((y*y)%N+c)%N
-        k = 0
-        while (k<r and g==1):
-            ys = y
-            for i in range(min(m,r-k)):
-                y = ((y*y)%N+c)%N
-                q = q*(abs(x-y))%N
-            g = gcd(q,N)
-            k = k + m
-
-        r = r*2
-    if g==N:
-        while True:
-            ys = ((ys*ys)%N+c)%N
-            g = gcd(abs(x-ys),N)
-            if g>1:
-                break
-    return g    
-
-
-# ----------------------------------------------------------------------------
-# Calcul des facteurs
-# -------------------------
-
-def factorise(n):
-    f = []
-    if(n == 2):
-        f.append(2)
-        return f
-
-    n, tmp = divide_by(n, 2)
-    f += tmp
-    p = 3
-
-    while n != 1:
-        if(p == n):
-            f.append(p)
-            break
-        if(p > sqrt(n)) :
-            n, tmp = divide_by(n, n)
-            f += tmp
-            continue
-        n, tmp = divide_by(n, p)
-        f += tmp
-        p = premier_suivant(p)    
-
-    return f
-
-    

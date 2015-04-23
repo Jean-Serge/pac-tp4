@@ -50,7 +50,7 @@ def _millerRabin(a, n):
             return True
         d *= 2
         
-        return False
+    return False
 
 # ========================
 def millerRabin(n, k=20):

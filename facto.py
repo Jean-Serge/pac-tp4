@@ -18,7 +18,7 @@ import random
 # -------------------------
 URL = 'http://pac.bouillaguet.info/TP4/factoring/'
 server = Server(URL)
-response = server.query('get/4/A+')
+response = server.query('get/3/C')
 
 
 id = response['id']
@@ -30,17 +30,20 @@ print(type(n))
 
 
 while(n != 1):
-    p = brent(n)
-    # p = pollardrho(n)
-    if p == None or p == n:
+    if(millerRabin(n)):
+       f.append(n)
+       print('Fini - premier !!')
+       break
+
+    p = pollardrho(n)
+    if p == n:
         f.append(n)
-        print('Fini !!')
+        print('Fini - p = n!!')
         break
 
     n = n // p
-    # f.append(p)
+    f.append(p)
     print("n : " + str(n))
-    f += factorise(p)
     
 print(f)
 
