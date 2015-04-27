@@ -18,7 +18,7 @@ import random
 # -------------------------
 URL = 'http://pac.bouillaguet.info/TP4/factoring/'
 server = Server(URL)
-response = server.query('get/3/C')
+response = server.query('get/3/A')
 
 
 id = response['id']
